@@ -46,16 +46,28 @@ if(options.help) {
   return;
 }
 
+function tryLoadCfg(cfgJson) {
+  try {
+    var bower = require(path.join(basePath, cfgJson));
+    return bower.install;
+  } catch(e) {
+    throw e;
+  }
+}
+
 // Load configuration file
 try {
-    cfg = require(path.join(basePath,'bower.json')).install;	
+    cfg = tryLoadCfg('bower.json');
 } catch(e) {
+    console.log(("Couldn't load bower.json: ").red + e);
+    console.log(('\nTrying to load component.json instead..').bold);
     try {
-        cfg = require(path.join(basePath,'component.json')).install;
+        cfg = tryLoadCfg('component.json');
     } catch(e) {
-    	throw new Error('Neither bower.json nor component.json present');
+      throw new Error(("Couldn't load component.json: ").red + e);
     }
 }
+
 var paths;
 var installPathFiles;
 
